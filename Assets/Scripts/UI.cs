@@ -12,9 +12,13 @@ public class UI : MonoBehaviour
     MainGameScript main;
     private float value;
     public TMP_Text sliderFillText;
+    public TMP_Text painText;
+
+    public TMP_Text playAgain;
     // Start is called before the first frame update
     void Start()
     {
+        playAgain.enabled = false;
         main = FindObjectOfType<MainGameScript>();
     }
 
@@ -39,6 +43,9 @@ public class UI : MonoBehaviour
 
         int convertedValue = (int)main.pressure;
         sliderFillText.text = convertedValue.ToString();
+
+        int convertedPain = (int)main.patientPain;
+        painText.text = "Pain: " + convertedPain + "/10";
     }
 
     private void WinLoseText()
@@ -46,10 +53,11 @@ public class UI : MonoBehaviour
         if (main.gameOver == true)
         {
             vConditionText.text = "Ouch!";
+            playAgain.enabled = true;
         }
         else if (main.playerWon == true)
         {
-            vConditionText.text = "POP!";
+            playAgain.enabled = true;
         }
     }
 }

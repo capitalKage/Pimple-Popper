@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class MainGameScript : MonoBehaviour
 {
@@ -16,7 +17,7 @@ public class MainGameScript : MonoBehaviour
     // Pain increased of outside of the 'Good' area.
     private float painIncrease = 0.5f;
     // Max pain patient can reach.
-    private float painMax = 25f;
+    private float painMax = 10f;
     // Time that good zone is held.
     private float goodZoneTime = 0f;
     // Good zone held successful time
@@ -26,52 +27,73 @@ public class MainGameScript : MonoBehaviour
     public bool playerWon = false;
     public bool gameOver = false;
     #endregion
+#pragma warning disable CS0108 // Member hides inherited member; missing new keyword
+    public AudioSource audio;
+#pragma warning restore CS0108 // Member hides inherited member; missing new keyword
+
+    public AudioClip yell;
+    public AudioClip pop;
+
+    public GameObject puss;
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetButtonDown("Jump"))
+        if (Input.GetButtonDown("Jump") && gameOver == false && playerWon == false)
         {
             pressure += pressureIncrease;
             Debug.Log("Button pressed: " + pressure);
             GoodPressureZone();
         }
-        else if (Input.GetButton("Jump"))
+        else if (Input.GetButton("Jump") && gameOver == false && playerWon == false)
         {
-            pressure += pressureIncrease * 3f * Time.fixedDeltaTime;
+            pressure += pressureIncrease * 7 * Time.fixedDeltaTime;
             Debug.Log("Button held: " + pressure);
             GoodPressureZone();
         }
-        else if (!Input.GetButton("Jump") && pressure > 0)
+        else if (!Input.GetButton("Jump") && pressure > 0 && gameOver == false && playerWon == false)
         {
-            pressure -= pressureDecrease * 2 * Time.fixedDeltaTime;
+            pressure -= pressureDecrease * 7 * Time.fixedDeltaTime;
             Debug.Log("Button released: " + pressure);
             GoodPressureZone();
+        }
+        else if (Input.GetButtonDown("Jump") && playerWon == true)
+        {
+            SceneManager.LoadScene(0);
+        }
+        else if (Input.GetButtonDown("Jump") && gameOver == true)
+        {
+            SceneManager.LoadScene(0);
         }
     }
 
     private void GoodPressureZone()
     {
-        if(pressure > 2 && pressure < 4)
+        if(pressure > 2 && pressure < 4 && gameOver == false && playerWon == false)
         {
+            puss.transform.Translate(Vector3.back * .3f * Time.deltaTime);
             goodZoneTime += Time.fixedDeltaTime;
-            if(goodZoneTime >= goodTimeVictory)
+            if(goodZoneTime >= goodTimeVictory && gameOver == false && playerWon == false)
             {
-                Debug.Log("POP! Player victory");
+                puss.transform.Translate(Vector3.back * 2);
                 playerWon = true;
+                audio.PlayOneShot(pop);
             }
         }
         else
         {
             goodZoneTime = 0;
+            if(puss.transform.position.z < -2.42f && gameOver == false && playerWon == false)
+            {
+                puss.transform.Translate(Vector3.forward * .3f * Time.deltaTime);
+            }
         }
 
-        if (pressure > 4)
+        if (pressure > 4 && gameOver == false && playerWon == false)
         {
             patientPain += painIncrease * pressure * Time.fixedDeltaTime;
-
             if (patientPain >= painMax)
             {
-                Debug.Log("OUCH! Game Over");
+                audio.PlayOneShot(yell);
                 gameOver = true;
             }
         }
